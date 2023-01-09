@@ -21,12 +21,6 @@ def city_choose_keyboard(all_city, locale):
             result.row(
                 InlineKeyboardButton(city.name, callback_data=f"city_id~{city.id}")
             )
-    result.row(
-        InlineKeyboardButton(
-            locale_configurator.get_locale_text(locale, "close"),
-            callback_data=f"close",
-        )
-    )
     return result
 
 
@@ -43,12 +37,6 @@ def district_choose_keyboard(all_district, locale):
         InlineKeyboardButton(
             locale_configurator.get_locale_text(locale, "step_back_order"),
             callback_data=f"step_back_order~{2}",
-        )
-    )
-    result.row(
-        InlineKeyboardButton(
-            locale_configurator.get_locale_text(locale, "close"),
-            callback_data=f"close",
         )
     )
     return result
@@ -68,12 +56,6 @@ def payment_system_choose_keyboard(all_payment_system, locale):
             callback_data=f"step_back_order~{3}",
         )
     )
-    result.row(
-        InlineKeyboardButton(
-            locale_configurator.get_locale_text(locale, "close"),
-            callback_data=f"close",
-        )
-    )
     return result
 
 
@@ -91,12 +73,6 @@ def currency_choose_keyboard(all_currency, locale):
             callback_data=f"step_back_order~{4}",
         )
     )
-    result.row(
-        InlineKeyboardButton(
-            locale_configurator.get_locale_text(locale, "close"),
-            callback_data=f"close",
-        )
-    )
     return result
 
 
@@ -106,12 +82,6 @@ def await_sum_keyboard(locale):
         InlineKeyboardButton(
             locale_configurator.get_locale_text(locale, "step_back_order"),
             callback_data=f"step_back_order~{5}",
-        )
-    )
-    result.row(
-        InlineKeyboardButton(
-            locale_configurator.get_locale_text(locale, "close"),
-            callback_data=f"close",
         )
     )
     return result
@@ -130,4 +100,9 @@ def await_geolocation_keyboard(locale):
             locale_configurator.get_locale_text(locale, "anonymously"),
         )
     )
+    return result
+
+def link_keyboard(user_id):
+    result = InlineKeyboardMarkup()
+    result.row(InlineKeyboardButton("Ссылка на пользователя",url=f"tg://user?id={user_id}"))
     return result
