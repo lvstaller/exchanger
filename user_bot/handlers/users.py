@@ -21,7 +21,7 @@ from texts import *
 from databases.databases import User, City, District, PaymentSystem, Currency, Order
 from databases.database_mics import Session
 from states import Form
-from config import channel_id, subs_channel, notification_id
+from config import channel_id
 
 
 @dp.message_handler(commands=["start"])
@@ -164,6 +164,7 @@ async def order_creation_completed(message: types.Message, state):
         sum = f["sum"]
     session = Session()
     new_order = Order(
+        User_id=message.from_user.id,
         city_id=city_id,
         district_id=district_id,
         payment_system_id=payment_system_id,
@@ -178,6 +179,8 @@ async def order_creation_completed(message: types.Message, state):
     await message.answer(
         locale_configurator.get_locale_text(locale, "successfully_created")
     )
+    await bot.send_message(channel_id, f"Новый заказ\nГород:{new_order.city.name}")
+    session.close()
     await state.reset_state()
 
 
