@@ -5,8 +5,8 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
 )
-from config import channel_link
-from mics import locale_configurator
+from .config import channel_link
+from .mics import locale_configurator
 
 
 markup_start = ReplyKeyboardMarkup(resize_keyboard=True)

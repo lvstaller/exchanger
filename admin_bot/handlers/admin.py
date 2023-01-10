@@ -17,12 +17,12 @@ from aiogram.types.input_media import (
     MediaGroup,
 )
 
-from mics import dp, bot
-from keyboards import *
-from texts import *
+from ..mics import dp, bot
+from ..keyboards import *
+from ..texts import *
 from databases.databases import Admin, City, District, PaymentSystem, Currency
 from databases.database_mics import Session
-from states import Form
+from ..states import Form
 
 
 @dp.message_handler(commands=["start"], state="*")

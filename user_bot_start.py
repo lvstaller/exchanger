@@ -3,8 +3,8 @@ import asyncio
 
 from aiogram.utils import executor
 
-from mics import dp, bot
-import handlers
+from user_bot.mics import dp, bot
+import user_bot.handlers
 
 DELAY = 20
 

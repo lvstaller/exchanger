@@ -14,14 +14,14 @@ from aiogram.types.input_media import (
     MediaGroup,
 )
 
-from mics import dp, bot, locale_configurator
-from keyboards import *
-from texts import *
+from ..mics import dp, bot, locale_configurator
+from ..keyboards import *
+from ..texts import *
 
 from databases.databases import User, City, District, PaymentSystem, Currency, Order
 from databases.database_mics import Session
-from states import Form
-from config import channel_id
+from ..states import Form
+from ..config import channel_id
 
 
 @dp.message_handler(commands=["start"])
@@ -37,7 +37,7 @@ async def send_welcome(message: types.Message, state):
         session.commit()
     async with state.proxy() as f:
         f["locale"] = user.locale
-    await message.answer(locale_configurator.get_locale_text(user.locale, "start_text"))
+    await message.answer(locale_configurator.get_locale_text(user.locale, "start_text"), reply_markup=markup_start)
     session.close()
 
 
