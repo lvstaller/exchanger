@@ -54,10 +54,16 @@ class Currency(Base):
     is_enabled = Column(Boolean)
 
 
+class OrderStatus(Base):
+    __tablename__ = "order_status"
+    id = Column(Integer, primary_key=True, autoincrement= True)
+    name = Column(Text)
+
 class Order(Base):
     __tablename__ = "orders"
     id = Column(Integer, primary_key=True, autoincrement=True)
     User_id = Column(Integer)
+    master_id = Column(Integer)
     city_id = Column(Integer, ForeignKey("citys.id"))
     city = relationship("City", backref="orders")
     district_id = Column(Integer, ForeignKey("districts.id"))
@@ -67,6 +73,8 @@ class Order(Base):
     currency_id = Column(Integer, ForeignKey("currency.id"))
     currency = relationship("Currency", backref="orders")
     sum = Column(Float)
+    status_id = Column(Integer, ForeignKey("order_status.id"), default=1)
+    status = relationship("OrderStatus", backref="orders_with_this_status")
     longitude = Column(Float)
     latitude = Column(Float)
 

@@ -175,11 +175,20 @@ async def order_creation_completed(message: types.Message, state):
     )
     session.add(new_order)
     session.commit()
-    session.close()
     await message.answer(
         locale_configurator.get_locale_text(locale, "successfully_created")
     )
-    await bot.send_message(channel_id, f"Новый заказ\nГород:{new_order.city.name}")
+    await bot.send_message(
+        channel_id,
+        order_text.format(
+            session.query(City).filter_by(id=city_id).first().name,
+            session.query(District).filter_by(id=city_id).first().name,
+            session.query(PaymentSystem).filter_by(id=city_id).first().name,
+            session.query(Currency).filter_by(id=city_id).first().name,
+            sum
+        ),
+        reply_markup=order_keyboard(message.chat.id, new_order.id, 0)
+    )
     session.close()
     await state.reset_state()
 

@@ -102,7 +102,11 @@ def await_geolocation_keyboard(locale):
     )
     return result
 
-def link_keyboard(user_id):
+def order_keyboard(user_id, order_id, status):
     result = InlineKeyboardMarkup()
     result.row(InlineKeyboardButton("Ссылка на пользователя",url=f"tg://user?id={user_id}"))
+    if status == 0:
+        result.row(InlineKeyboardButton("Взять в работу",callback_data=f"get_in_work~{order_id}"))
+    elif status == 1:
+        result.row(InlineKeyboardButton("Закрыть обмен",callback_data=f"close_order~{order_id}"))
     return result
