@@ -41,7 +41,7 @@ async def send_welcome(message: types.Message, state):
     session.close()
 
 
-@dp.message_handler(text="Обмен")
+@dp.message_handler(text="💳Обмен")
 async def send_city_choose(message: types.Message, state):
     session = Session()
     async with state.proxy() as f:
@@ -105,21 +105,62 @@ async def send_currency_choose(
         locale = f["locale"]
         if not (back_status):
             f["payment_system_id"] = callback_query.data.split("~")[1]
+        f['currency_start'] = None
+        f['currency_end'] = None
+        f['currency_start_id'] = None
+        f['currency_end_id'] = None
     session = Session()
     all_currency = session.query(Currency).all()
     await callback_query.message.edit_text(
         locale_configurator.get_locale_text(locale, "currency_choose"),
-        reply_markup=currency_choose_keyboard(all_currency, locale),
+        reply_markup=exchange_chooser(all_currency, [[0 for i in range(len(all_currency))],[0 for i in range(len(all_currency))]]),
     )
     session.close()
 
 
-@dp.callback_query_handler(lambda c: c.data.split("~")[0] == "currency_id", state="*")
-async def send_await_sum(callback_query: types.CallbackQuery, state, back_status=False):
+@dp.callback_query_handler(
+    lambda c: c.data.split("~")[0] == "choose", state="*"
+)
+async def send_currency_choose(
+    callback_query: types.CallbackQuery, state, back_status=False
+):
+    session = Session()
+    all_currency = session.query(Currency).all()
+    currency_id, choose_id_y, choose_id_x = callback_query.data.split("~")[1:]
+    choose_currency = session.query(Currency).filter_by(id =currency_id).first()
+    choose_list = [0 for i in range(len(all_currency))],[0 for i in range(len(all_currency))]
+
     async with state.proxy() as f:
         locale = f["locale"]
         if not (back_status):
-            f["currency_id"] = callback_query.data.split("~")[1]
+            f["payment_system_id"] = callback_query.data.split("~")[1]
+        if choose_id_y == "0":
+
+            f['currency_start'] = choose_currency.name
+            f['currency_start_id'] = int(choose_id_x)
+        else:
+            f['currency_end'] = choose_currency.name
+            f['currency_end_id'] = int(choose_id_x)
+        if f['currency_start_id'] is not None:
+            choose_list[0][f['currency_start_id']] = True
+        if f['currency_end_id'] is not None:
+            choose_list[1][f['currency_end_id']] = True
+    print(choose_list,choose_id_y,choose_id_x)
+    await callback_query.message.edit_text(
+        locale_configurator.get_locale_text(locale, "currency_choose"),
+        reply_markup=exchange_chooser(all_currency, choose_list),
+    )
+    session.close()
+
+@dp.callback_query_handler(lambda c: c.data.split("~")[0] == "accept_currency", state="*")
+async def send_await_sum(callback_query: types.CallbackQuery, state, back_status=False):
+    async with state.proxy() as f:
+        if f['currency_end'] is None or f['currency_start'] is None:
+            await callback_query.answer("Пожалуйста, выберите валюты которые вы хотите обменять",show_alert=True)
+            return 0
+        locale = f["locale"]
+        if not (back_status):
+            f["currency_id"] = f"{f['currency_start']}-{f['currency_start']}"
     await callback_query.message.edit_text(
         locale_configurator.get_locale_text(locale, "await_sum"),
         reply_markup=await_sum_keyboard(locale),
@@ -160,7 +201,7 @@ async def order_creation_completed(message: types.Message, state):
         city_id = f["city_id"]
         district_id = f["district_id"]
         payment_system_id = f["payment_system_id"]
-        currency_id = f["currency_id"]
+        currency_pare = f["currency_id"]
         sum = f["sum"]
     session = Session()
     new_order = Order(
@@ -168,7 +209,6 @@ async def order_creation_completed(message: types.Message, state):
         city_id=city_id,
         district_id=district_id,
         payment_system_id=payment_system_id,
-        currency_id=currency_id,
         sum=sum,
         longitude=longitude,
         latitude=latitude,
@@ -176,7 +216,8 @@ async def order_creation_completed(message: types.Message, state):
     session.add(new_order)
     session.commit()
     await message.answer(
-        locale_configurator.get_locale_text(locale, "successfully_created")
+        locale_configurator.get_locale_text(locale, "successfully_created"),
+        reply_markup=markup_start
     )
     await bot.send_message(
         channel_id,
@@ -184,7 +225,7 @@ async def order_creation_completed(message: types.Message, state):
             session.query(City).filter_by(id=city_id).first().name,
             session.query(District).filter_by(id=city_id).first().name,
             session.query(PaymentSystem).filter_by(id=city_id).first().name,
-            session.query(Currency).filter_by(id=city_id).first().name,
+            currency_pare,
             sum
         ),
         reply_markup=order_keyboard(message.chat.id, new_order.id, 0)
@@ -214,3 +255,7 @@ async def step_back_placing_order(callback_query: types.CallbackQuery, state):
 async def get_close(callback_query: types.CallbackQuery, state):
     await callback_query.message.delete()
     await state.reset_state()
+
+@dp.message_handler()
+async def send_city_choose(message: types.Message, state):
+    print(message)

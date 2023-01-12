@@ -10,8 +10,8 @@ from .mics import locale_configurator
 
 
 markup_start = ReplyKeyboardMarkup(resize_keyboard=True)
-markup_start.row("Обмен")
-markup_start.row("FAQ")
+markup_start.row("💳Обмен")
+markup_start.row("🆘FAQ","📩Личный кабинет")
 
 
 def city_choose_keyboard(all_city, locale):
@@ -100,6 +100,13 @@ def await_geolocation_keyboard(locale):
             locale_configurator.get_locale_text(locale, "anonymously"),
         )
     )
+    return result
+
+def exchange_chooser(currency_list,choose_list):
+    result = InlineKeyboardMarkup()
+    for ind,i in enumerate(currency_list):
+        result.row(InlineKeyboardButton(f"{i.name} {'✅' if choose_list[0][ind] else ''}",callback_data=f"choose~{i.id}~0~{ind}"),InlineKeyboardButton(f"{i.name} {'✅' if choose_list[1][ind] else ''}",callback_data=f"choose~{i.id}~1~{ind}"))
+    result.row(InlineKeyboardButton(f"Подтвердить выбор",callback_data="accept_currency"))
     return result
 
 def order_keyboard(user_id, order_id, status):
